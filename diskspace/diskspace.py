@@ -41,7 +41,7 @@ def subprocess_check_output(command):
 
 
 def bytes_to_readable(blocks):
-    byts = blocks * 512
+    byts = blocks * 512  # O QUE É 512?
     readable_bytes = byts
     count = 0
     while readable_bytes / 1024:
@@ -54,6 +54,7 @@ def bytes_to_readable(blocks):
 
 def print_tree(file_tree, file_tree_node, path, largest_size, total_size,
                depth=0):
+    #import ipdb; ipdb.set_trace()
     percentage = int(file_tree_node['size'] / float(total_size) * 100)
 
     if percentage < args.hide:
@@ -83,9 +84,12 @@ def show_space_list(directory='.', depth=-1, order=True):
     raw_output = subprocess_check_output(cmd)
 
     total_size = -1
+    """ Regex pega os dígitos, os espaços e os não espaço ou não dígitos """
     line_regex = r'(\d+)\s+([^\s]*|\D*)'
 
     file_tree = {}
+    """ findall = tem retorno a lista de tuplas com tamanho e caminho.
+        strip tira os espaços do começo e do fim. """
     for line in re.findall(line_regex, raw_output.strip(), re.MULTILINE):
         file_path = line[-1]
         dir_path = os.path.dirname(file_path)
@@ -122,12 +126,17 @@ def show_space_list(directory='.', depth=-1, order=True):
 
     largest_size = 0
     for file_path in file_tree:
+        # import ipdb; ipdb.set_trace()
         file_tree_entry = file_tree[file_path]
+        """ Ordenado os filhos pelo tamanho """
         file_tree_entry['children'] = sorted(
             file_tree_entry['children'],
             key=lambda v: file_tree[v]['size'],
             reverse=order
         )
+        """ lambda é um função de uma linha, v é o argumento que é = child
+            em children. ele pega todos os tamanhos de cada child para ordenar
+            pelo tamanho dos filhos (children) """
 
         file_tree_entry['print_size'] = bytes_to_readable(
             file_tree_entry['size']
@@ -145,6 +154,7 @@ def main():
                         order=(args.order == 'desc'))
     else:
         show_space_list(args.directory, order=(args.order == 'desc'))
+
 
 if __name__ == '__main__':
     main()
