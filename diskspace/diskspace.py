@@ -52,13 +52,23 @@ def bytes_to_readable(blocks):
     return '{:.2f}{}'.format(round(byts/(1024.0**count), 2), labels[count])
 
 
+def calculate_percentage(file_tree_node, total_size):
+    percentage = int(file_tree_node['size'] / float(total_size) * 100)
+    return percentage
+
+
+def percentage_args(args, percentage):
+    if percentage < args.hide:
+        return  # True
+    #  else:
+    #   return False
+
+
 def print_tree(file_tree, file_tree_node, path, largest_size, total_size,
                depth=0):
-    #import ipdb; ipdb.set_trace()
-    percentage = int(file_tree_node['size'] / float(total_size) * 100)
+    percentage = calculate_percentage(file_tree_node, total_size)
 
-    if percentage < args.hide:
-        return
+    percentage_args(args.hide, percentage)
 
     print('{:>{}s} {:>4d}%  '.format(file_tree_node['print_size'],
                                      largest_size, percentage), end='')
@@ -73,14 +83,19 @@ def print_tree(file_tree, file_tree_node, path, largest_size, total_size,
                        total_size, depth + 1)
 
 
-def show_space_list(directory='.', depth=-1, order=True):
-    abs_directory = os.path.abspath(directory)
-
+def du_command(depth, abs_directory):
     cmd = 'du '
     if depth != -1:
         cmd += '-d {} '.format(depth)
-
     cmd += abs_directory
+    return cmd
+
+
+def show_space_list(directory='.', depth=-1, order=True):
+    abs_directory = os.path.abspath(directory)
+    #import ipdb; ipdb.set_trace()
+    cmd = du_command(depth, abs_directory)
+
     raw_output = subprocess_check_output(cmd)
 
     total_size = -1
