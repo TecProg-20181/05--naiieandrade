@@ -10,6 +10,7 @@ import StringIO
 from diskspace import bytes_to_readable
 from diskspace import subprocess_check_output, print_tree
 from diskspace import calculate_percentage, du_command, percentage_args
+from diskspace import print_space_list
 
 
 class TestDiskspace(unittest.TestCase):
@@ -67,6 +68,18 @@ class TestDiskspace(unittest.TestCase):
         path = self.path.split("/")[-1]
         result = '{}{}'.format('   '*depth, os.path.basename(self.path))
         self.assertEqual(result, path)
+
+    def test_show_space_list(self):
+        # directory = self.path
+        cap = StringIO.StringIO()
+        sys.stdout = cap
+
+        print_space_list(self.largest_size, self.file_tree,
+                         self.path, self.total_size)
+        result = "  Size   (%)  File\n2.00Kb  100%  {}\n".format(self.path)
+        sys.stdout = sys.__stdout__
+        # print("Get Value: " + cap.getvalue())
+        self.assertEqual(result, cap.getvalue())
 
 
 if __name__ == '__main__':

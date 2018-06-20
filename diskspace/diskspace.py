@@ -57,7 +57,7 @@ def calculate_percentage(file_tree_node, total_size):
     return percentage
 
 
-def percentage_args(args, percentage):
+def percentage_args(percentage):
     if percentage < args.hide:
         return  # True
     #  else:
@@ -68,7 +68,7 @@ def print_tree(file_tree, file_tree_node, path, largest_size, total_size,
                depth=0):
     percentage = calculate_percentage(file_tree_node, total_size)
 
-    percentage_args(args.hide, percentage)
+    percentage_args(percentage)
 
     print('{:>{}s} {:>4d}%  '.format(file_tree_node['print_size'],
                                      largest_size, percentage), end='')
@@ -91,9 +91,15 @@ def du_command(depth, abs_directory):
     return cmd
 
 
+def print_space_list(largest_size, file_tree, abs_directory, total_size):
+    print(' ' * max(0, largest_size - len('Size')) + 'Size   (%)  File')
+    print_tree(file_tree, file_tree[abs_directory], abs_directory,
+               largest_size, total_size)
+
+
 def show_space_list(directory='.', depth=-1, order=True):
     abs_directory = os.path.abspath(directory)
-    #import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     cmd = du_command(depth, abs_directory)
 
     raw_output = subprocess_check_output(cmd)
@@ -158,9 +164,7 @@ def show_space_list(directory='.', depth=-1, order=True):
         )
         largest_size = max(largest_size, len(file_tree_entry['print_size']))
 
-    print(' ' * max(0, largest_size - len('Size')) + 'Size   (%)  File')
-    print_tree(file_tree, file_tree[abs_directory], abs_directory,
-               largest_size, total_size)
+    print_space_list(largest_size, file_tree, abs_directory, total_size)
 
 
 def main():
